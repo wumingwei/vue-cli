@@ -90,7 +90,7 @@ if (exists(to)) {
 
 function run () {
   // check if template is local
-  if (hasSlash && exists(template)) {
+  if (exists(template)) {
     generate(name, template, to, function (err) {
       if (err) logger.fatal(err)
       console.log()
@@ -101,7 +101,11 @@ function run () {
       if (!hasSlash) {
         // use official templates
         template = 'vuejs-templates/' + template
-        checkDistBranch(template, downloadAndGenerate)
+        if (template.indexOf('#') !== -1) {
+          downloadAndGenerate(template)
+        } else {
+          checkDistBranch(template, downloadAndGenerate)
+        }
       } else {
         downloadAndGenerate(template)
       }
@@ -130,9 +134,6 @@ function checkDistBranch (template, cb) {
       var hasDist = JSON.parse(body).some(function (branch) {
         return branch.name === 'dist'
       })
-      if (!hasDist) {
-        console.log(JSON.parse(body))
-      }
       return cb(hasDist ? template + '#dist' : template)
     }
   })
